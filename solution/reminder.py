@@ -2,7 +2,7 @@
 # Send Email reminder based on their status on the spreadsheet
 
 import openpyxl
-import smtplib,ssl
+import smtplib
 import sys
 
 # Open the spreadsheet and get the latest dues status.
