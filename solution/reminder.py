@@ -3,47 +3,53 @@
 
 import openpyxl
 import smtplib
-import sys
 
-# Open the spreadsheet and get the latest dues status.
-wb = openpyxl.load_workbook('../duesRecords.xlsx')
+# TODO: Check each member's payment status.
+
+wb = openpyxl.load_workbook('duesRecords.xlsx')
 sheet = wb['Sheet1']
 
+# Target row and column
 lastCol = sheet.max_column
 latestMonth = sheet.cell(row=1, column=lastCol).value
 
-unpaidMembers = {}
-# Check each member's payment status
+unpaidMember = {}
+
 for r in range(2, sheet.max_row + 1):
     payment = sheet.cell(row=r, column=lastCol).value
     if payment != 'paid':
         name = sheet.cell(row=r, column=1).value
         email = sheet.cell(row=r, column=2).value
-        unpaidMembers[name] = email
-        # print(name, email, unpaidMembers)
+        unpaidMember[name] = email
 
-# Create a secure SSL context
+
+# TODO: Log in to email account.
 domain = 'smtp.gmail.com'
 port = 587
 input_pw = input('Email Password:')
 
-# Try to log in to server and send email
+# Try to login to the server and send our email
+
 try:
     server = smtplib.SMTP(domain, port)
     server.ehlo()
     server.starttls()
     server.login('skills@instincthub.com', input_pw)
 
-    # Send out reminder emails.
-    for name, email in unpaidMembers.items():
-        body = 'Subject: %s dues unpaid.\nDear %s,\nRecords show that you have not paid dues for %s. Please make this payment as soon as possible. Thank you!' % (latestMonth, name, latestMonth)
-        print('Sending email to %s...' % email)
-        sendmailStatus = server.sendmail('skills@instincthub.com', email, body)
+    # TODO: Send out reminder emails.
+    for name, email in unpaidMember.items():
+        body = f'Subject: {latestMonth} dues  unpaid \nDear {name}, \nRecord shows that you have not paid dues for {latestMonth}. \nPlease make payment as soon as possible. \n\nThank you'
 
-        if sendmailStatus != {}:
-            print('There was a problem sending email to %s: %s' % (email, sendmailStatus))
+        print(f'Sending Email to {name}...')
+
+        sendEmail = server.sendmail('skills@instincthub.com', email, body)
+
+        if sendEmail != {}:
+            print(f'There is a problem sending email to {email}: {sendEmail}')
+
 except Exception as e:
-    # Print any error messages to stdout
+    # Print error
     print(e)
+
 finally:
     server.quit()
